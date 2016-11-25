@@ -1,0 +1,17 @@
+---
+- hosts: sentry
+  become: true
+  vars:
+    db_sentry:
+      name: dbname
+      user: dbuser
+      password: dbpassword
+    superuser_sentry:
+      username: redacted
+      email: redacted
+      password: redacted
+    sentry:
+      server: "{{ inventory_hostname }}"
+      secret_key: 'SECRET_KEY'
+  roles:
+    - sentry-8.7.0
