@@ -1,0 +1,111 @@
+---
+
+- include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Create user sentry.
+  user: >
+    name="sentry"
+    home="/home/sentry"
+    createhome=yes
+    move_home=yes
+    comment="sentry user"
+    shell="/bin/bash"
+    state="present"
+
+- name: create sentry directory
+  file : >
+    path="/var/www/sentry"
+    state="directory"
+    owner="sentry"
+    group="sentry"
+    mode=0755
+
+- name: ensure sentry directory exists
+  file:
+    path: /var/www/sentry
+    state: directory
+
+- name: create sentry config directory
+  file : >
+    path="/etc/sentry"
+    state="directory"
+    owner="sentry"
+    group="sentry"
+    mode=0755
+
+- name: ensuring sentry config directory exists
+  file:
+    path: /etc/sentry/
+    state: directory
+
+- name: install virtualenv version(15.0.3) with pip 
+  become: yes 
+  become_user: root
+  pip: name=virtualenv version=15.0.3
+
+- name: installing sentry under the virtualenv /var/www/sentry
+  pip: name=sentry version=8.7.0 virtualenv=/var/www/sentry
+
+- name: install celery with redis
+  pip: name=celery version=3.1.19 virtualenv=/var/www/sentry
+
+- name: install memcached
+  pip: name=python-memcached virtualenv=/var/www/sentry
+
+- name: activating sentry virtualenv
+  template: src=venv_exec.j2 dest=/var/www/sentry/exec mode=755
+
+- name: intializing sentry
+  command: "/var/www/sentry/bin/sentry init /etc/sentry"
+
+- name: Copy sentry configuration
+  template:
+    src: sentry_conf.py.j2
+    dest: /etc/sentry/sentry.conf.py
+    owner: sentry
+    group: sentry
+
+- name: Copy sentry config.yml configuration
+  template:
+    src: sentry-config.j2
+    dest: /etc/sentry/config.yml
+    owner: sentry
+    group: sentry
+  notify: restart nginx
+
+- name: Copy nginx configuration for sentry
+  template:
+    src: nginx-sentry.conf.j2
+    dest: /etc/nginx/sites-available/sentry.conf
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+
+- name: Link nginx configuration for sentry
+  file:
+    src: /etc/nginx/sites-available/sentry.conf
+    dest: /etc/nginx/sites-enabled/sentry.conf
+    state: link
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+  notify:
+    - restart nginx
+
+- name: Copy supervisor configuration for sentry
+  template:
+    src: supervisor-sentry.conf.j2
+    dest: /etc/supervisor/conf.d/sentry.conf
+  notify:
+    - reload supervisor
+
+- name: executing command
+  shell: /var/www/sentry/bin/sentry --config=/etc/sentry/sentry.conf.py upgrade --noinput
+  notify:
+    - restart nginx
+    - reload supervisor
+
+- name: create admin user
+  shell: source /var/www/sentry/bin/activate && export SENTRY_CONF=/etc/sentry/sentry.conf.py && python -c "from sentry.utils.runner import configure; configure(); from django.db import DEFAULT_DB_ALIAS as database; from sentry.models import User; User.objects.db_manager(database).create_superuser('{{ superuser_sentry.username }}', '{{ superuser_sentry.email }}', '{{ superuser_sentry.password }}')" executable=/bin/bash chdir=/var/www/sentry
+  notify:
+    - restart nginx
+    - reload supervisor
+
