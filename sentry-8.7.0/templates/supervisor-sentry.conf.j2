@@ -1,0 +1,36 @@
+[program:sentry-web]
+directory=/var/www/sentry
+environment=SENTRY_CONF="/etc/sentry"
+command=/var/www/sentry/bin/sentry run web
+#command=/var/www/sentry/bin/sentry --config=/var/www/sentry/sentry.conf.py start http
+#environment=PATH="/var/www/sentry/bin",HOME="/var/www/sentry/home",USER="sentry"
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/sentry/sentry_web.access
+stderr_logfile=/var/log/sentry/sentry_web.error
+
+# See https://docs.getsentry.com/on-premise/server/installation/#configure-supervisord
+[program:celery-beat]
+directory=/var/www/sentry 
+environment=SENTRY_CONF="/etc/sentry"
+#command=/var/www/sentry/bin/sentry --config=/var/www/sentry/sentry.conf.py run cron --pidfile=/var/www/sentry/home/celerybeat.pid
+#environment=PATH="/var/www/sentry/bin",HOME="/var/www/sentry/home",USER="sentry"
+command=/var/www/sentry/bin/sentry run cron
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/sentry/sentry_celerybeat.access
+stderr_logfile=/var/log/sentry/sentry_celerybeat.error
+
+[program:celery-worker]
+directory=/var/www/sentry 
+environment=SENTRY_CONF="/etc/sentry",C_FORCE_ROOT="yes"
+command=/var/www/sentry/bin/sentry run worker
+#command=/var/www/sentry/bin/sentry --config=/var/www/sentry/sentry.conf.py celery worker
+#environment=PATH="/var/www/sentry/bin",HOME="/var/www/sentry/home",USER="sentry"
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/sentry/sentry_worker.access
+stderr_logfile=/var/log/sentry/sentry_worker.error
