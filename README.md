@@ -9,6 +9,7 @@ In AWS create an EC2 instance and give a DNS name with PUBLIC dns and in invento
 > **Example:**
 > 
 > [sentry]
+> 
 > DNS name
 
 To execute this playbook you have to execute:
