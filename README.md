@@ -18,9 +18,9 @@ To execute this playbook you have to execute:
 
 once the playbook executed successfully on the EC2 instance you will be able to access sentry GUI by giving the DNS name as the url.
 
-#### <i class="icon-file"></i> Create a document
 
-Open #### <i class="icon-file"></i>sentrysetup.yml file you have to <i class="icon-pencil"></i> rename the credentials according to your requirements.
+
+Open <i class="icon-file"></i>sentrysetup.yml file you have to <i class="icon-pencil"></i> rename the credentials according to your requirements.
 
 Here, <i class="icon-folder-open"></i> sentry-8.7.0 is the ansible role.
 
