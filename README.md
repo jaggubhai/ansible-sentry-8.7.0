@@ -1,7 +1,7 @@
 Installs and configures sentry version 8.7.0
 ===================================
 
-I wrote this ansible playbook in such a way that it installs sentry version(8.7.0) in AWS EC2 instances.
+I wrote this ansible playbook in such a way that it installs sentry version(8.7.0) under the directory /var/www/sentry in AWS EC2 instances.
 
 In AWS create an EC2 instance and give a DNS name with PUBLIC dns and in inventory file append the DNS.
 
@@ -29,5 +29,5 @@ Here, <i class="icon-folder-open"></i> sentry-8.7.0 is the ansible role.
 
 For the **sentry.secretkey** you have create a new key from [here](http://www.miniwebtool.com/django-secret-key-generator/)  to set the secret_key setting under the sentry namespace to a unique key that acts as a signing token in production environments.
 
-
+Edit config.yml under /etc/sentry it is for the sentry to send mail notifications, change the redisport in the last line.
 
