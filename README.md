@@ -15,4 +15,4 @@ To execute this playbook you have to execute:
 > $ ansible-playbook sentrysetup.yml
 
 
-once the playbook executed successfully on the EC2 instance you will be able to access sentry GUI by giving the DNS name in the url.
+once the playbook executed successfully on the EC2 instance you will be able to access sentry GUI by giving the DNS name as the url.
